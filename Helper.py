@@ -70,8 +70,6 @@ def create_prompt_job_interview_questions(number_of_questions):
         Distribute your questions using the following categories:
         Behavioral Questions, Technical Questions, Situational Questions, Competency Questions, Open-ended Questions, Closed-ended Questions, Personal Questions
         
-        Group the questions by category.
-        
         Very important to only respond in JSON format, with the following keys:
         category:
         question:
@@ -165,6 +163,12 @@ def create_prompt_html_report(data):
     green: #228B22 for pros, or positive feedback from reasoning, or score equal to or above min_match
 
     You will receive the data in the format of a JSON object.
+
+    Group the questions by category here is an example: 
+    category: Behavioral Questions
+    - question
+    - question
+    - question
 
     Here is your json data enclosed and three backticks: ```{data}```
 
