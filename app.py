@@ -14,7 +14,6 @@ from datetime import datetime
 import random
 import webbrowser
 
-
 openai.api_key = open_api_key.get_api_key()
 current_date = datetime.now().date()
 random_number = random.randint(10000000, 99999999)
@@ -23,7 +22,8 @@ Helper.clear_screen()
 
 messages = []
 app_data = {}
-
+res_jd_data = {}
+all_data = {}
 
 # report title and date
 app_data["report_title"] = "ResumeSync: Intelligent Job Alignment Platform"
@@ -37,19 +37,25 @@ app_data["resume_file_name"] = "michael1.pdf" # in resume folder
 app_data["min_match"] = 80.0 # minimum match score to continue
 
 # set the openai details
-app_data["openai_model"] = "gpt-3.5-turbo"  # gpt-4, gpt-4-0613, gpt-3.5-turbo, gpt-3.5-turbo-16k, gpt-3.5-turbo-0613
-app_data["temperature"] = 0.3 # 0.0 - 2.0 (higher = more creative)
+app_data["openai_model"] = "gpt-3.5-turbo-16k"  # gpt-4, gpt-4-0613, gpt-3.5-turbo, gpt-3.5-turbo-16k, gpt-3.5-turbo-0613
+app_data["temperature"] = 0.1 # 0.0 - 2.0 (higher = more creative)
 
 # set default values
-app_data["number_of_questions"] = 5 
-app_data["number_of_resume_improvements"] = 3
-app_data["number_of_pro_con"] = 3
+app_data["number_of_questions"] = 20 
+app_data["number_of_resume_improvements"] = 5
+app_data["number_of_pro_con"] = 5
 
+print("=" * 100)
+print(app_data["report_title"])
+print("=" * 100)
 
 # get job description and resume
 job_description_data, resume_data = Helper.get_resume_and_job_description(
      app_data["job_description_file_name"], 
      app_data["resume_file_name"])
+
+res_jd_data["job_description"] = job_description_data
+res_jd_data["resume"] = resume_data
 
 # create a system prompt
 system_prompt = Helper.create_system_prompt()
@@ -62,29 +68,11 @@ messages = Helper.add_prompt_messages("user", user_prompt , messages)
 response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"]) 
 Helper.add_prompt_messages("assistant",response, messages)
 
-# check if the json is valid
-json_valid = Helper.is_json(response)
-if not json_valid:
-    print("ChatGPT Error: Please try again.")
-    print(response)
-    sys.exit()
+data = Helper.validate_json(response)
+app_data["score"] = int(data["score"])
+app_data["reasoning"] = data["reasoning"]
+app_data["missing_requirements"] = data["missing_requirements"]
 
-# get score and reasoning
-try:
-    data = json.loads(response) 
-    app_data["score"] = int(data["score"])
-    # app_data["reasoning"] = data["reasoning"]
-    # app_data["missing_requirements"] = data["missing_requirements"]
-
-
-
-    # print("Score: " + str(app_data["score"]))
-    # print("Reasoning: " + str(app_data["reasoning"]))   
-    # print("Missing Requirements: " + str(app_data["missing_requirements"]))
-
-except Exception as e:
-    print(e)
-    sys.exit()
 
 # ############# create pros and cons of the applicant
 print("Adding pros and cons of the applicant")
@@ -93,34 +81,22 @@ messages = Helper.add_prompt_messages("user", user_prompt , messages)
 response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"])
 Helper.add_prompt_messages("assistant",response, messages)
 
-# check if the json is valid
-json_valid = Helper.is_json(response)
-if not json_valid:
-    print("ChatGPT Error: Please try again.")
-    print(response)
-    sys.exit()
+data = Helper.validate_json(response)
 
-# get score and reasoning
 pros_and_cons = {}
 pros = []
 cons = []
 
-try:
-    data = json.loads(response) 
-    for p in data["pros"]:
-        pros.append(p)
-    
-    for c in data["cons"]:  
-        cons.append(c)
+for p in data["pros"]:
+    pros.append(p)
 
-    pros_and_cons["pros"]= pros
-    pros_and_cons["cons"]= cons
+for c in data["cons"]:  
+    cons.append(c)
 
-    app_data["pros_and_cons"] = pros_and_cons
+pros_and_cons["pros"]= pros
+pros_and_cons["cons"]= cons
 
-except Exception as e:
-    print(e)
-    sys.exit()
+app_data["pros_and_cons"] = pros_and_cons
 
 
 # create resume improvements
@@ -130,28 +106,15 @@ messages = Helper.add_prompt_messages("user", user_prompt, messages)
 response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"])
 Helper.add_prompt_messages("assistant",response, messages)
 
-# check if the json is valid
-json_valid = Helper.is_json(response)
-if not json_valid:
-    print("ChatGPT Error: Please try again.")
-    print(response)
-    sys.exit()
+data = Helper.validate_json(response)
 
-# print(response)
-# get score and reasoning
 improvements = []
 
-try:
-    data = json.loads(response) 
-    improvements_data = data["improvements"]
-    for improvement in improvements_data:
-        improvements.append(improvement["improvement"])
+improvements_data = data["improvements"]
+for improvement in improvements_data:
+    improvements.append(improvement["improvement"])
 
-    app_data["improvements"] = improvements
-
-except Exception as e:
-    print(e)
-    sys.exit()
+app_data["improvements"] = improvements
 
 # # create interview questions
 print("Adding interview questions")
@@ -160,78 +123,57 @@ messages = Helper.add_prompt_messages("user", user_prompt , messages)
 response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"])
 Helper.add_prompt_messages("assistant",response, messages)
 
+data = Helper.validate_json(response)
 
-# check if the json is valid
-json_valid = Helper.is_json(response)
-if not json_valid:
-    print("ChatGPT Error: Please try again.")
-    print(response)
-    sys.exit()
-
-# print(response)
-# get score and reasoning
 questions = []
 
-try:
-    data = json.loads(response) 
-    questions_data = data["questions"]
-    for question in questions_data:
-        questions.append(question["question"])
+questions_data = data["questions"]
+for question in questions_data:
+    questions.append(question["question"])
 
-    app_data["questions"] = questions
-
-except Exception as e:
-    print(e)
-    sys.exit()
-
-
-
-
-
+app_data["questions"] = questions
 
 # print('_' * 100)
-# print("app_data")
-
-# print('_' * 100)
-# print("messages")
 # json_data = json.dumps(messages, indent=4)
 # print(json_data)
 
+print("Creating ResumeSync Report")
+
+html_messages = []
+html_system_prompt = Helper.create_system_prompt_html()
+html_messages = Helper.add_prompt_messages("system", html_system_prompt , html_messages)
+html_prompt = Helper.create_prompt_html_report(app_data)
+html_messages = Helper.add_prompt_messages("user", html_prompt , html_messages)
+
+html_page = Helper.get_chat_completion_messages(html_messages, model=app_data["openai_model"], temperature=app_data["temperature"]) 
+
+# print(custom_resume)
+html_file = 'html/' + str(random_number) + ".html"
+with open(html_file, 'w') as file:
+        file.write(html_page)
+        # your path to the html file will be different
+        webbrowser.open("file:///Users/msuliot/Documents/code/getting-interviewed-by-ai/" + html_file)
+
+print("DONE:")
 
 
-# html_messages = []
-# html_system_prompt = Helper.create_system_prompt_html()
-# html_messages = Helper.add_prompt_messages("system", html_system_prompt , html_messages)
-# html_prompt = Helper.create_prompt_html(consolidated_information)
-# html_messages = Helper.add_prompt_messages("user", html_prompt , html_messages)
 
-# html_page = Helper.get_chat_completion_messages(html_messages, model=openai_model, temperature=temperature) 
-
-# # print(custom_resume)
-# html_file = 'html/' + str(random_number) + ".html"
-# with open(html_file, 'w') as file:
-#         file.write(html_page)
-#         # your path to the html file will be different
-#         webbrowser.open("file:///Users/msuliot/Documents/code/getting-interviewed-by-ai/" + html_file)
-
-
-
-def display_json(data, indent=0):
-    for key, value in data.items():
-        print('  ' * indent + str(key))
-        if isinstance(value, dict):
-            display_json(value, indent + 1)
-        elif isinstance(value, list):
-            for i in value:
-                if isinstance(i, dict):
-                    display_json(i, indent + 1)
-                else:
-                    print('  ' * (indent + 1) + str(i))
-        else:
-            print('  ' * (indent + 1) + str(value))
+# def display_json(data, indent=0):
+#     for key, value in data.items():
+#         print('  ' * indent + str(key))
+#         if isinstance(value, dict):
+#             display_json(value, indent + 1)
+#         elif isinstance(value, list):
+#             for i in value:
+#                 if isinstance(i, dict):
+#                     display_json(i, indent + 1)
+#                 else:
+#                     print('  ' * (indent + 1) + str(i))
+#         else:
+#             print('  ' * (indent + 1) + str(value))
 
 
-display_json(app_data)
+# display_json(app_data)
 
 # json_data = json.dumps(app_data, indent=4)
-# print(json_data)
+# print(json_data) 
