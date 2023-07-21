@@ -41,9 +41,9 @@ app_data["openai_model"] = "gpt-3.5-turbo"  # gpt-4, gpt-4-0613, gpt-3.5-turbo, 
 app_data["temperature"] = 0.3 # 0.0 - 2.0 (higher = more creative)
 
 # set default values
-app_data["number_of_questions"] = 20 
-app_data["number_of_resume_improvements"] = 7
-app_data["number_of_pro_con"] = 7
+app_data["number_of_questions"] = 5 
+app_data["number_of_resume_improvements"] = 3
+app_data["number_of_pro_con"] = 3
 
 
 # get job description and resume
@@ -154,16 +154,44 @@ except Exception as e:
     sys.exit()
 
 # # create interview questions
-# print("Adding interview questions")
-# user_prompt = Helper.create_prompt_job_interview_questions(app_data["number_of_questions"])
-# messages = Helper.add_prompt_messages("user", user_prompt , messages) 
-# response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"])
-# Helper.add_prompt_messages("assistant",response, messages)
+print("Adding interview questions")
+user_prompt = Helper.create_prompt_job_interview_questions(app_data["number_of_questions"])
+messages = Helper.add_prompt_messages("user", user_prompt , messages) 
+response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"])
+Helper.add_prompt_messages("assistant",response, messages)
+
+
+# check if the json is valid
+json_valid = Helper.is_json(response)
+if not json_valid:
+    print("ChatGPT Error: Please try again.")
+    print(response)
+    sys.exit()
+
+# print(response)
+# get score and reasoning
+questions = []
+
+try:
+    data = json.loads(response) 
+    questions_data = data["questions"]
+    for question in questions_data:
+        questions.append(question["question"])
+
+    app_data["questions"] = questions
+
+except Exception as e:
+    print(e)
+    sys.exit()
+
+
+
+
+
 
 # print('_' * 100)
 # print("app_data")
-# json_data = json.dumps(app_data, indent=4)
-# print(json_data)
+
 # print('_' * 100)
 # print("messages")
 # json_data = json.dumps(messages, indent=4)
@@ -203,7 +231,7 @@ def display_json(data, indent=0):
             print('  ' * (indent + 1) + str(value))
 
 
-# display_json(app_data)
+display_json(app_data)
 
-json_data = json.dumps(app_data, indent=4)
-print(json_data)
+# json_data = json.dumps(app_data, indent=4)
+# print(json_data)
