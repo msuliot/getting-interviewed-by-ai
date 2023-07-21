@@ -1,7 +1,7 @@
 # Author: Michael Suliot (Michael AI)
 # Date: 7/15/2023
 # Version: 1.0
-# Description: This application will take a job description and a resume Generate a score based on a match.
+# Description: This application will take a job description and a resume generate a score based on a match.
 # Project: ResumeSync
 
 import sys
@@ -98,7 +98,6 @@ pros_and_cons["cons"]= cons
 
 app_data["pros_and_cons"] = pros_and_cons
 
-
 # create resume improvements
 print("Adding resume improvements")
 user_prompt = Helper.create_prompt_to_improve_resume(app_data["number_of_resume_improvements"])
@@ -133,10 +132,6 @@ for question in questions_data:
 
 app_data["questions"] = questions
 
-# print('_' * 100)
-# json_data = json.dumps(messages, indent=4)
-# print(json_data)
-
 print("Creating ResumeSync Report")
 
 html_messages = []
@@ -147,7 +142,6 @@ html_messages = Helper.add_prompt_messages("user", html_prompt , html_messages)
 
 html_page = Helper.get_chat_completion_messages(html_messages, model=app_data["openai_model"], temperature=app_data["temperature"]) 
 
-# print(custom_resume)
 html_file = 'html/' + str(random_number) + ".html"
 with open(html_file, 'w') as file:
         file.write(html_page)
