@@ -41,7 +41,7 @@ app_data["openai_model"] = "gpt-3.5-turbo-16k"
 app_data["temperature"] = 0.1 # 0.0 - 2.0 (higher = more creative)
 
 # set default values
-app_data["number_of_questions"] = 15
+app_data["number_of_questions"] = 40
 app_data["number_of_resume_improvements"] = 10
 app_data["number_of_pro_con"] = 5
 

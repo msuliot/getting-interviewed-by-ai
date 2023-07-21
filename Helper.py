@@ -65,10 +65,17 @@ def get_chat_completion_messages(messages, model="gpt-3.5-turbo", temperature=0.
 def create_prompt_job_interview_questions(number_of_questions):
     prompt = f"""
         Your task is to generate a list of {number_of_questions} questions for job interview between a hiring manager, and a job candidate.
-        The quesiton should be relevant to the job posting, and the resume of the candidate.
+        It is important that the quesitons should be relevant to the job posting, and the resume of the candidate.
 
-        Distribute your questions using the following categories:
-        Behavioral Questions, Technical Questions, Situational Questions, Competency Questions, Open-ended Questions, Closed-ended Questions, Personal Questions
+        Distribute your questions using the following categories and percentages of how to distribute the questions:
+        
+        - Behavioral = 20% means 20% of the questions should be behavioral questions.
+        - Technical = 20% means 20% of the questions should be technical questions.
+        - Situational = 25% means 25% of the questions should be situational questions.
+        - Competency = 20% means 20% of the questions should be competency questions.
+        - Open-ended = 5% means 5% of the questions should be open-ended questions.
+        - Closed-ended = 5% means 5% of the questions should be closed-ended questions.
+        - Personal = 5% means 5% of the questions should be personal questions.
         
         Very important to only respond in JSON format, with the following keys:
         category:
