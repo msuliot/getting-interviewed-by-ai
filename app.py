@@ -36,8 +36,10 @@ app_data["resume_file_name"] = "michael1.pdf" # in resume folder
 # set the minimum score to continue
 app_data["min_match"] = 80.0 # minimum match score to continue
 
-# set the openai details
-app_data["openai_model"] = "gpt-3.5-turbo-16k"  # gpt-4, gpt-4-0613, gpt-3.5-turbo, gpt-3.5-turbo-16k, gpt-3.5-turbo-0613
+# Set the openai details - 
+# Based on how many questions, pros and cons and improvements, 
+# If you get an error you may need to use the 16 K model if you get an error
+app_data["openai_model"] = "gpt-3.5-turbo-16k"  # gpt-4, gpt-4-32k, gpt-4-0613, gpt-3.5-turbo, gpt-3.5-turbo-16k, gpt-3.5-turbo-0613
 app_data["temperature"] = 0.1 # 0.0 - 2.0 (higher = more creative)
 
 # set default values
