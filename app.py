@@ -34,7 +34,7 @@ app_data["job_description_file_name"] = "chief_tech_ASC.txt" # in job_descriptio
 app_data["resume_file_name"] = "michael1.pdf" # in resume folder
 
 # set the minimum score to continue
-app_data["min_match"] = 75.0 # minimum match score to continue
+app_data["minimum_score"] = 75.0 # minimum match score to continue
 
 # Set the openai details - model and temperature
 app_data["openai_model"] = "gpt-3.5-turbo-16k"

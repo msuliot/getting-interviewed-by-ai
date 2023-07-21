@@ -63,19 +63,29 @@ def get_chat_completion_messages(messages, model="gpt-3.5-turbo", temperature=0.
 
 
 def create_prompt_job_interview_questions(number_of_questions):
+    bevavioral = int(number_of_questions * .20)
+    technical = int(number_of_questions * .20)
+    situational = int(number_of_questions * .25)
+    competency = int(number_of_questions * .20)
+    open_ended = int(number_of_questions * .05)
+    closed_ended = int(number_of_questions * .05)
+    personal = int(number_of_questions * .05)
+
+
     prompt = f"""
-        Your task is to generate a list of {number_of_questions} questions for job interview between a hiring manager, and a job candidate.
+        Your task is to generate a list of {number_of_questions} common job interview questions
+        
         It is important that the quesitons should be relevant to the job posting, and the resume of the candidate.
 
         Distribute your questions using the following categories and percentages of how to distribute the questions:
         
-        - Behavioral = 20% means 20% of the questions should be behavioral questions.
-        - Technical = 20% means 20% of the questions should be technical questions.
-        - Situational = 25% means 25% of the questions should be situational questions.
-        - Competency = 20% means 20% of the questions should be competency questions.
-        - Open-ended = 5% means 5% of the questions should be open-ended questions.
-        - Closed-ended = 5% means 5% of the questions should be closed-ended questions.
-        - Personal = 5% means 5% of the questions should be personal questions.
+        - Behavioral = {bevavioral} should be behavioral questions.
+        - Technical = {technical} should be technical questions.
+        - Situational = {situational} should be situational questions.
+        - Competency = {competency} should be competency questions.
+        - Open-ended = {open_ended} should be open-ended questions.
+        - Closed-ended = {closed_ended} should be closed-ended questions.
+        - Personal = {personal} should be personal questions.
         
         Very important to only respond in JSON format, with the following keys:
         category:
@@ -166,16 +176,14 @@ def create_prompt_html_report(data):
     Please use colors to highlight important text.
     colors: 
     blue: #000080 for titles
-    red: #A52A2A for missing requirements, cons, or negative feedback from reasoning or score below min_match
-    green: #228B22 for pros, or positive feedback from reasoning, or score equal to or above min_match
+    red: #A52A2A for missing requirements, cons, or negative feedback from reasoning or score below minimum_score
+    green: #228B22 for pros, or positive feedback from reasoning, or score equal to or above minimum_score
 
     You will receive the data in the format of a JSON object.
 
     Group the questions by category here is an example: 
-    category: Behavioral Questions
-    - question
-    - question
-    - question
+    category: Behavioral
+    - Question
 
     Here is your json data enclosed and three backticks: ```{data}```
 
