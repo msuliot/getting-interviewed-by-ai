@@ -43,8 +43,8 @@ app_data["openai_model"] = "gpt-3.5-turbo-16k"  # gpt-4, gpt-4-32k, gpt-4-0613, 
 app_data["temperature"] = 0.1 # 0.0 - 2.0 (higher = more creative)
 
 # set default values
-app_data["number_of_questions"] = 20 
-app_data["number_of_resume_improvements"] = 5
+app_data["number_of_questions"] = 40
+app_data["number_of_resume_improvements"] = 10
 app_data["number_of_pro_con"] = 5
 
 print("=" * 100)
@@ -130,7 +130,10 @@ questions = []
 
 questions_data = data["questions"]
 for question in questions_data:
+    questions.append(question["category"])
     questions.append(question["question"])
+    # questions.append(question["reason"])
+    # questions.append(question["best_response"])
 
 app_data["questions"] = questions
 

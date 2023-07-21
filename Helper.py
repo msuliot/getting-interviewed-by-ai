@@ -66,8 +66,14 @@ def create_prompt_job_interview_questions(number_of_questions):
     prompt = f"""
         Your task is to generate a list of {number_of_questions} questions for job interview between a hiring manager, and a job candidate.
         The quesiton should be relevant to the job posting, and the resume of the candidate.
+
+        Distribute your questions using the following categories:
+        Behavioral Questions, Technical Questions, Situational Questions, Competency Questions, Open-ended Questions, Closed-ended Questions, Personal Questions
+        
+        Group the questions by category.
+        
         Very important to only respond in JSON format, with the following keys:
-        id:
+        category:
         question:
 
         double check your response is in JSON format.
