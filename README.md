@@ -35,9 +35,8 @@ return "OPENAI_API_KEY"
    - Paste the job description into a text file and save it as a text file in the job_description folder
 
 3. ** Update the app.py **
-    # set the job description and resume file names
-        app_data["job_description_file_name"] = "THE_FILE_NAME.txt" # in job_description folder
-        app_data["resume_file_name"] = "THE_RESUME.pdf" # in resume folder
+   - app_data["job_description_file_name"] = "THE_FILE_NAME.txt" # in job_description folder
+   - app_data["resume_file_name"] = "THE_RESUME.pdf" # in resume folder
 
 4. ** Run the app.py **
     ```bash
