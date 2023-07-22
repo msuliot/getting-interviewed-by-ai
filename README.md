@@ -1,14 +1,4 @@
-# OpenAI API Reference 
-
-This repository contains OpenAI API reference examples. 
-* [OpenAI API Reference](https://platform.openai.com/docs/api-reference)
-
-
-To install the official Python bindings, run the following command:
-```bash
-pip3 install openai
-pip3 install PyPDF2
-```
+# Getting Interviewed by AI
 
 ## The basics
 
