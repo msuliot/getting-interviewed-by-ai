@@ -5,7 +5,7 @@
 1. Must have Python3.
 2. Get repository
 ```bash
-git clone https://github.com/msuliot/simple_ai.git 
+git clone https://github.com/msuliot/getting-interviewed-by-ai.git 
 ```
 3. use pip3 to install any dependencies.
 ```bash
