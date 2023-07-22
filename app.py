@@ -4,7 +4,6 @@
 # Description: This application will take a job description and a resume generate a score based on a match.
 # Project: ResumeSync
 
-import sys
 import json
 import openai
 import Helper
@@ -12,7 +11,6 @@ import key.open_ai_key as open_api_key
 from PyPDF2 import PdfReader
 from datetime import datetime
 import random
-import webbrowser
 
 openai.api_key = open_api_key.get_api_key()
 current_date = datetime.now().date()
@@ -149,7 +147,7 @@ html_file = 'html/' + str(random_number) + ".html"
 with open(html_file, 'w') as file:
         file.write(html_page)
         # your path to the html file will be different
-        webbrowser.open("file:///Users/msuliot/Documents/code/getting-interviewed-by-ai/" + html_file)
+        Helper.open_web_page("file:///Users/msuliot/Documents/code/getting-interviewed-by-ai/" + html_file)
 
 print("DONE:")
 
