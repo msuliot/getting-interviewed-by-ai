@@ -2,7 +2,6 @@ import openai
 import json
 import os
 import sys
-import key.open_ai_key as open_api_key
 from PyPDF2 import PdfReader
 import webbrowser
 

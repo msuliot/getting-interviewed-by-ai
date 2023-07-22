@@ -7,12 +7,12 @@
 import json
 import openai
 import Helper
-import key.open_ai_key as open_api_key
+import open_ai_key.key as key
 from PyPDF2 import PdfReader
 from datetime import datetime
 import random
 
-openai.api_key = open_api_key.get_api_key()
+openai.api_key = key.get_api_key()
 current_date = datetime.now().date()
 random_number = random.randint(10000000, 99999999)
 
@@ -28,8 +28,8 @@ app_data["report_title"] = "ResumeSync: Intelligent Job Alignment Platform"
 app_data["date"] = str(current_date)
 
 # set the job description and resume file names
-app_data["job_description_file_name"] = "chief_tech_ASC.txt" # in job_description folder
-app_data["resume_file_name"] = "michael1.pdf" # in resume folder
+app_data["job_description_file_name"] = "THE_FILE_NAME.txt" # in job_description folder
+app_data["resume_file_name"] = "THE_RESUME.pdf" # in resume folder
 
 # set the minimum score to continue
 app_data["minimum_score"] = 75.0 # minimum match score to continue
@@ -39,8 +39,8 @@ app_data["openai_model"] = "gpt-3.5-turbo-16k"
 app_data["temperature"] = 0.1 # 0.0 - 2.0 (higher = more creative)
 
 # set default values
-app_data["number_of_questions"] = 40
-app_data["number_of_resume_improvements"] = 10
+app_data["number_of_questions"] = 15
+app_data["number_of_resume_improvements"] = 5
 app_data["number_of_pro_con"] = 5
 
 print("=" * 100)
