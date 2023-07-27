@@ -17,9 +17,9 @@ pip3 install PyPDF2
 
 Make sure to get an OpenAI key from https://platform.openai.com/account/api-keys
 
-Add your OpenAI key to the open_ai_key.py file
+Create a ".env" file and put your OpenAI key in that file
 ```bash
-return "OPENAI_API_KEY" 
+OPENAI_API_KEY='your key here'
 ```
 
 # Instructions:

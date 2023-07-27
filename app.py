@@ -7,12 +7,16 @@
 import json
 import openai
 import Helper
-import open_ai_key.key as key
 from PyPDF2 import PdfReader
 from datetime import datetime
 import random
 
-openai.api_key = key.get_api_key()
+# get keys from .env file
+import os
+from dotenv import load_dotenv
+load_dotenv()
+openai.api_key = os.getenv('OPENAI_API_KEY')
+
 current_date = datetime.now().date()
 random_number = random.randint(10000000, 99999999)
 
