@@ -9,9 +9,7 @@ git clone https://github.com/msuliot/getting-interviewed-by-ai.git
 ```
 3. use pip3 to install any dependencies.
 ```bash
-pip3 install openai
-pip3 install PyPDF2
-pip3 install python-dotenv
+pip3 install -r requirements.txt
 ```
 
 ## Open AI / ChatGPT
