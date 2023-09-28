@@ -1,5 +1,8 @@
 # Getting Interviewed by AI
 
+## YouTube Video Tutorial for this GitHub Repository
+[Mastering AI Interviews](https://youtu.be/lAEvvGosJ20)
+
 ## The basics
 
 1. Must have Python3.
