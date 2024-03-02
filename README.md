@@ -13,7 +13,6 @@ git clone https://github.com/msuliot/getting-interviewed-by-ai.git
 3. use pip3 to install any dependencies.
 ```bash
 pip3 install -r requirements.txt
-python3 create_dir.py
 ```
 
 4. create directors for the resume and job description
