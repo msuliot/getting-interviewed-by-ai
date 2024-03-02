@@ -1,12 +1,36 @@
-import openai
+from openai import OpenAI
+from pathlib import Path
 import json
 import os
 import sys
 from PyPDF2 import PdfReader
 import webbrowser
+# get keys from .env file
+from dotenv import load_dotenv
+load_dotenv()
+# openai.api_key = os.getenv('OPENAI_API_KEY')
+openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
 
 def open_web_page(url):
     webbrowser.open(url)
+
+def create_dirs():
+    directories = ['resume', 'job_description', 'html']
+    for dir_path in directories:
+        root = find_project_root()
+        full_path = Path(root) / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+
+def find_project_root():
+        marker = "app.py"
+        current_file = Path(__file__).resolve()
+        
+        for parent in current_file.parents:
+            if (parent / marker).exists():
+                return parent
+        
+        return current_file
 
 def clear_screen():
     _ = os.system('clear')
@@ -47,18 +71,35 @@ def parse_file_name(file_name: str):
     return name, extension
 
 
-def get_chat_completion_messages(messages, model="gpt-3.5-turbo", temperature=0.0): 
+def get_chat_completion_messages(messages, model_name="gpt-4", temperature=0.1): 
     try:
-        response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        temperature=temperature,
-    )
+        response = openai_client.chat.completions.create(
+            model=model_name,
+            messages=messages,
+            temperature=temperature,
+            response_format={ "type": "json_object" },
+            max_tokens=4000
+        )
     except Exception as e:
         print(e)
         sys.exit()
     else:
-        return response.choices[0].message["content"]
+        return response.choices[0].message.content
+    
+
+def get_chat_completion_messages_html(messages, model_name="gpt-4", temperature=0.5): 
+    try:
+        response = openai_client.chat.completions.create(
+            model=model_name,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=4000
+        )
+    except Exception as e:
+        print(e)
+        sys.exit()
+    else:
+        return response.choices[0].message.content
 
 
 def create_prompt_job_interview_questions(number_of_questions):
@@ -87,10 +128,9 @@ def create_prompt_job_interview_questions(number_of_questions):
         - Personal = {personal} should be personal questions.
         
         Very important to only respond in JSON format, with the following keys:
-        category:
-        question:
-
-        double check your response is in JSON format.
+        "questions": 
+            "category": "<placeholder_for_category>"
+            "question": "<placeholder_for_question>"
         """
     return prompt
 
@@ -99,26 +139,44 @@ def create_prompt_to_improve_resume(number_of_items):
     prompt = f"""
         i really want to improve my resume You better align with the job description and improve my score, create me a list of {number_of_items} things to improve my resume.
         Very important to only respond in JSON format, with the following keys:
-        id:
-        improvement:
-
-        double check your response is in JSON format.
+        
+        "improvements": 
+            "improvement": "<placeholder_for_improvement>"
         """
     return prompt
 
 
-def create_prompt_pro_con(number_of_items):
+def create_prompt_pro_con(number_of_pros, number_of_cons):
     prompt = f"""
-        You are a hiring manager. Your task is to generate a list of {number_of_items} pros and cons for a job candidate.
+        You are a hiring manager. Your task is to generate a list of {number_of_pros} pros and {number_of_cons} cons for a job candidate.
 
         Very important to only respond in JSON format, with the following keys:
-        pros:
-        cons:
-
-        double check your response is in JSON format.
+        "proscons": 
+            "type": "<placeholder_for_pro_or_con>", "content": "<placeholder_for_content>"
         """
     return prompt
 
+# def create_prompt_pros(number_of_items):
+#     prompt = f"""
+#         You are a hiring manager. Your task is to generate a list of {number_of_items} pros for a job candidate.
+
+#         Very important to only respond in JSON format, with the following keys:
+#         pros:
+
+#         double check your response is in JSON format.
+#         """
+#     return prompt
+
+# def create_prompt_cons(number_of_items):
+#     prompt = f"""
+#         You are a hiring manager. Your task is to generate a list of {number_of_items} cons for a job candidate.
+
+#         Very important to only respond in JSON format, with the following keys:
+#         cons:
+
+#         double check your response is in JSON format.
+#         """
+#     return prompt
 
 def create_system_prompt():
     system_prompt = f"""
@@ -133,32 +191,35 @@ def create_system_prompt():
     Also, include your reasoning for the score.
 
     double check your score, reasoning and resume facts before submitting it to the hiring manager.
+
+    make sure to output JSON format.
     """
     return system_prompt
 
 
 def create_prompt_job_match_v2(job_description, resume):
     prompt = f"""
-Here's a template you can use to generate the relevance score:
-Here's are some examples way to do it:
+    Here's a template you can use to generate the relevance score:
+    Here's are some examples way to do it:
 
-1. Identify the key requirements in the job description.
-2. Compare these requirements with the candidate's resume.
-3. Assign points based on the alignment.
-4. Add up the points to get the total score. In this case
-5. Make sure to point out missing requirements in education, job duties or any others
+    1. Identify the key requirements in the job description.
+    2. Compare these requirements with the candidate's resume.
+    3. Assign points based on the alignment.
+    4. Add up the points to get the total score. In this case
+    5. Make sure to point out missing requirements in education, job duties or any others
 
-Very important to only respond in JSON format, with the following keys:
-    reasoning:
-    score:
-    missing_requirements:
+    Very important to only respond in JSON format, with the following keys:
+        "overview": 
+            "score": "<placeholder_for_score>"
+            "reasoning": "<placeholder_for_reasoning>"
+            "missing_requirements": "<placeholder_for_missing_requirements>",
 
-    job_description = ```{job_description}```
+        Here is the job description and resume enclosed in three backticks:
+        
+        job_description = ```{job_description}```
 
-    resume = ```{resume}```
-
-    double check your response is in JSON format.
-    """
+        resume = ```{resume}```
+        """
     return prompt
 
 

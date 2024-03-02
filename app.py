@@ -1,11 +1,11 @@
 # Author: Michael Suliot (Michael AI)
-# Date: 7/15/2023
-# Version: 1.0
+# Date: 7/15/2023 - 1.0
+#   Update 3/2/2024 - 1.1 - added openai new completion syntax with JSON format
+# Version: Beta 1.1
 # Description: This application will take a job description and a resume generate a score based on a match.
 # Project: ResumeSync
 
 import json
-import openai
 import Helper
 from PyPDF2 import PdfReader
 from datetime import datetime
@@ -15,7 +15,6 @@ import random
 import os
 from dotenv import load_dotenv
 load_dotenv()
-openai.api_key = os.getenv('OPENAI_API_KEY')
 
 current_date = datetime.now().date()
 random_number = random.randint(10000000, 99999999)
@@ -32,20 +31,23 @@ app_data["report_title"] = "ResumeSync: Intelligent Job Alignment Platform"
 app_data["date"] = str(current_date)
 
 # set the job description and resume file names
-app_data["job_description_file_name"] = "THE_FILE_NAME.txt" # in job_description folder
-app_data["resume_file_name"] = "THE_RESUME.pdf" # in resume folder
+app_data["job_description_file_name"] = "anthopic.txt" # in job_description folder
+app_data["resume_file_name"] = "michael_prod.pdf" # in resume folder
 
 # set the minimum score to continue
 app_data["minimum_score"] = 75.0 # minimum match score to continue
 
 # Set the openai details - model and temperature
-app_data["openai_model"] = "gpt-3.5-turbo-16k"
+app_data["openai_model"] = "gpt-4-0125-preview"
 app_data["temperature"] = 0.1 # 0.0 - 2.0 (higher = more creative)
 
 # set default values
-app_data["number_of_questions"] = 15
+app_data["number_of_questions"] = 5
 app_data["number_of_resume_improvements"] = 5
-app_data["number_of_pro_con"] = 5
+# app_data["number_of_pro_con"] = 5
+app_data["number_of_pros"] = 4
+app_data["number_of_cons"] = 6
+
 
 print("=" * 100)
 print(app_data["report_title"])
@@ -67,20 +69,20 @@ messages = Helper.add_prompt_messages("system", system_prompt , messages)
 print("Adding score and reasoning")
 user_prompt = Helper.create_prompt_job_match_v2(job_description_data, resume_data)
 messages = Helper.add_prompt_messages("user", user_prompt , messages)
-response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"]) 
+response = Helper.get_chat_completion_messages(messages, model_name=app_data["openai_model"], temperature=app_data["temperature"]) 
 Helper.add_prompt_messages("assistant",response, messages)
 
 data = Helper.validate_json(response)
-app_data["score"] = int(data["score"])
-app_data["reasoning"] = data["reasoning"]
-app_data["missing_requirements"] = data["missing_requirements"]
 
+app_data["score"] = data['overview']['score']
+app_data["reasoning"] = data['overview']['reasoning']
+app_data["missing_requirements"] = data['overview']['missing_requirements']
 
 # ############# create pros and cons of the applicant
 print("Adding pros and cons of the applicant")
-user_prompt = Helper.create_prompt_pro_con(app_data["number_of_pro_con"])
+user_prompt = Helper.create_prompt_pro_con(app_data["number_of_pros"],app_data["number_of_cons"])
 messages = Helper.add_prompt_messages("user", user_prompt , messages)
-response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"])
+response = Helper.get_chat_completion_messages(messages, model_name=app_data["openai_model"], temperature=app_data["temperature"])
 Helper.add_prompt_messages("assistant",response, messages)
 
 data = Helper.validate_json(response)
@@ -89,11 +91,11 @@ pros_and_cons = {}
 pros = []
 cons = []
 
-for p in data["pros"]:
-    pros.append(p)
-
-for c in data["cons"]:  
-    cons.append(c)
+for item in data['proscons']:
+    if item['type'] == 'pro':
+        pros.append(item['content'])
+    elif item['type'] == 'con':
+        cons.append(item['content'])
 
 pros_and_cons["pros"]= pros
 pros_and_cons["cons"]= cons
@@ -104,16 +106,16 @@ app_data["pros_and_cons"] = pros_and_cons
 print("Adding resume improvements")
 user_prompt = Helper.create_prompt_to_improve_resume(app_data["number_of_resume_improvements"])
 messages = Helper.add_prompt_messages("user", user_prompt, messages)
-response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"])
+response = Helper.get_chat_completion_messages(messages, model_name=app_data["openai_model"], temperature=app_data["temperature"])
 Helper.add_prompt_messages("assistant",response, messages)
 
 data = Helper.validate_json(response)
 
 improvements = []
 
-improvements_data = data["improvements"]
-for improvement in improvements_data:
-    improvements.append(improvement["improvement"])
+for improvement in data['improvements']:
+    improvement = improvement['improvement']
+    improvements.append(improvement)
 
 app_data["improvements"] = improvements
 
@@ -121,15 +123,15 @@ app_data["improvements"] = improvements
 print("Adding interview questions")
 user_prompt = Helper.create_prompt_job_interview_questions(app_data["number_of_questions"])
 messages = Helper.add_prompt_messages("user", user_prompt , messages) 
-response = Helper.get_chat_completion_messages(messages, model=app_data["openai_model"], temperature=app_data["temperature"])
+response = Helper.get_chat_completion_messages(messages, model_name=app_data["openai_model"], temperature=app_data["temperature"])
 Helper.add_prompt_messages("assistant",response, messages)
 
 data = Helper.validate_json(response)
 
 questions = []
 
-questions_data = data["questions"]
-for question in questions_data:
+# questions_data = data["questions"]
+for question in data["questions"]:
     questions.append(question["category"])
     questions.append(question["question"])
     # questions.append(question["reason"])
@@ -145,7 +147,7 @@ html_messages = Helper.add_prompt_messages("system", html_system_prompt , html_m
 html_prompt = Helper.create_prompt_html_report(app_data)
 html_messages = Helper.add_prompt_messages("user", html_prompt , html_messages)
 
-html_page = Helper.get_chat_completion_messages(html_messages, model=app_data["openai_model"], temperature=app_data["temperature"]) 
+html_page = Helper.get_chat_completion_messages_html(html_messages, model_name=app_data["openai_model"], temperature=0.5) 
 
 html_file = 'html/' + str(random_number) + ".html"
 with open(html_file, 'w') as file:
